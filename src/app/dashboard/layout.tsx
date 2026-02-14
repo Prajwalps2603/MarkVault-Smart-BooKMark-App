@@ -80,9 +80,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
           if (payload.eventType === 'INSERT') {
             setFolders((prev) => {
-              const f = payload.new as Folder;
-              if (prev.some((x) => x.id === f.id)) return prev;
-              return [...prev, f].sort((a, b) => a.name.localeCompare(b.name));
+              const maybeNew = payload.new;
+              // Check for null and required properties before casting
+              if (
+                maybeNew &&
+                typeof maybeNew === 'object' &&
+                'id' in maybeNew &&
+                'user_id' in maybeNew &&
+                'name' in maybeNew &&
+                'color' in maybeNew &&
+                'icon' in maybeNew &&
+                'created_at' in maybeNew &&
+                'updated_at' in maybeNew
+              ) {
+                const f = maybeNew as Folder;
+                if (prev.some((x) => x.id === f.id)) return prev;
+                return [...prev, f].sort((a, b) => a.name.localeCompare(b.name));
+              }
+              return prev;
             });
           } else if (payload.eventType === 'UPDATE') {
             const updated = payload.new as Folder;
