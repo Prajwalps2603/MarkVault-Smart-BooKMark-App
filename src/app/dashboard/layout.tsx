@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 'created_at' in maybeNew &&
                 'updated_at' in maybeNew
               ) {
-                const f = maybeNew as Folder;
+                const f = maybeNew as unknown as Folder;
                 if (prev.some((x) => x.id === f.id)) return prev;
                 return [...prev, f].sort((a, b) => a.name.localeCompare(b.name));
               }
