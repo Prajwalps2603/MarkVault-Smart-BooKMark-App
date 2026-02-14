@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               return prev;
             });
           } else if (payload.eventType === 'UPDATE') {
-            const updated = payload.new as Folder;
+            const updated = payload.new as unknown as Folder;
             setFolders((prev) => prev.map((f) => (f.id === updated.id ? updated : f)));
           } else if (payload.eventType === 'DELETE') {
             const deletedId = (payload.old as { id: string }).id;
