@@ -9,6 +9,9 @@ export interface Bookmark {
   tags: string[];
   is_favorite: boolean;
   og_image: string | null;
+  visit_count?: number;
+  last_visited?: string | null;
+  is_archived?: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -26,6 +26,10 @@ export function AddBookmarkModal({ isOpen, onClose, folders, defaultFolderId }: 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [tagColor, setTagColor] = useState('#6366f1');
+  const [tagColors, setTagColors] = useState<Record<string, string>>({});
+
+  // Suggested tags for quick selection
+  const suggestedTags = ['Work', 'Learning', 'Tools', 'AI', 'Design'];
 
   useEffect(() => {
     if (defaultFolderId) setFolderId(defaultFolderId);

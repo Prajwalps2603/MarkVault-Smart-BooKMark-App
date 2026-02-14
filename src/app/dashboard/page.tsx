@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useDashboard } from '@/app/dashboard/layout';
 import { BookmarkCard } from '@/components/BookmarkCard';
 import { AddBookmarkModal } from '@/components/AddBookmarkModal';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Grid3X3, List, LayoutGrid, BookmarkIcon,
@@ -65,23 +66,21 @@ export default function DashboardPage() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'bookmarks' },
-        (payload) => {
+        (payload: { eventType: string; new: Record<string, unknown> | null; old: Record<string, unknown> | null; }) => {
           const newRow = payload.new as Record<string, unknown> | undefined;
           const oldRow = payload.old as Record<string, unknown> | undefined;
           const rowUserId = newRow?.user_id || oldRow?.user_id;
           if (rowUserId && rowUserId !== user.id) return;
 
           if (payload.eventType === 'INSERT') {
-            const newBookmark = payload.new as Bookmark;
+            const newBookmark = payload.new as unknown as Bookmark;
             setBookmarks((prev) => {
               if (prev.some((b) => b.id === newBookmark.id)) return prev;
               return [newBookmark, ...prev];
             });
           } else if (payload.eventType === 'UPDATE') {
-            const updated = payload.new as Bookmark;
-            setBookmarks((prev) =>
-              prev.map((b) => (b.id === updated.id ? updated : b))
-            );
+            const updated = payload.new as unknown as Bookmark;
+            setBookmarks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
           } else if (payload.eventType === 'DELETE') {
             const deletedId = (payload.old as { id: string }).id;
             setBookmarks((prev) => prev.filter((b) => b.id !== deletedId));
@@ -174,6 +173,19 @@ export default function DashboardPage() {
       return acc;
     }, {} as Record<string, number>)
   ).sort((a, b) => b[1] - a[1]);
+
+  // Quick search results for modal
+  const quickSearchResults = (() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return [] as Bookmark[];
+    return bookmarks.filter(b => {
+      const title = (b.title || '').toLowerCase();
+      const url = (b.url || '').toLowerCase();
+      const desc = (b.description || '')?.toString().toLowerCase();
+      const tags = (b.tags || []).map(t => t.toLowerCase());
+      return title.includes(q) || url.includes(q) || desc.includes(q) || tags.some(t => t.includes(q));
+    });
+  })();
 
   // Page title
   const getTitle = () => {
