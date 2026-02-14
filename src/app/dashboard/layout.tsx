@@ -68,7 +68,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'folders' },
-        (payload) => {
+        (payload: {
+          eventType: string;
+          new: Record<string, unknown> | null;
+          old: Record<string, unknown> | null;
+        }) => {
           const newRow = payload.new as Record<string, unknown> | undefined;
           const oldRow = payload.old as Record<string, unknown> | undefined;
           const rowUserId = newRow?.user_id || oldRow?.user_id;
